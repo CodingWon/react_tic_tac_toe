@@ -4,13 +4,11 @@ export default function Player({ initialName, symbol }) {
   const [playerName, setPlayerName] = useState(initialName);
   const [isEditing, setIsEditing] = useState(false);
 
-
-
   function handleButton() {
     setIsEditing((editing) => !editing);
 
   }
-
+  
   function handleChange(e) {
     console.log(e.target.value);
     let editName = e.target.value
