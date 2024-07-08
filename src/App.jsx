@@ -5,6 +5,12 @@ import GameBoard from "./components/GameBoard"
 import Log from "./components/Log";
 import { WINNING_COMBINATIONS } from "./winning-combinations";
 
+const initialGameBoard = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null]
+];
+
 
 function deriveActivePlayer(gameTurns){
   let currentPlayer = 'X';
@@ -17,10 +23,32 @@ function deriveActivePlayer(gameTurns){
 
 function App() {
   const [gameTurns, setGameTurns] = useState([]);         // 버튼 하나를 클릭할 때마다 이 배열에 순서를 하니씩 추가한다. 
+  // const [hasWinner, setHasWinner] = useState(false); 불필요
   //상태를 하나 더 만들어서 크게 다를 것 없는 정보를 저장하는 것은 리액트 개발자로서 피하는 것이 좋다.
   // const [activePlayer, setActivePlayer] = useState('X');
 
   const activePlayer = deriveActivePlayer(gameTurns) ;
+
+  let gameBoard = initialGameBoard;
+
+  for(const turn of gameTurns){
+      const {square, player} = turn;
+      const {row,col} = square;
+
+      gameBoard[row][col] = player;
+  }
+
+  let winner = null;
+
+  for(const combination of WINNING_COMBINATIONS){
+    const firstSquareSymbol = gameBoard[combination[0].row][combination[0].column]
+    const secondSquareSymbol = gameBoard[combination[1].row][combination[1].column]
+    const thirdSquareSymbol = gameBoard[combination[2].row][combination[2].column]
+    
+    if(firstSquareSymbol && firstSquareSymbol === secondSquareSymbol && firstSquareSymbol === thirdSquareSymbol){
+        winner = firstSquareSymbol;
+    }
+  }
 
 
   function handleSelectSquare(rowIndex, colIndex) {                         // GameBoard 에서 handleSelectSqure 를 제어한다.
@@ -47,9 +75,10 @@ return (
         <Player initialName="player1" symbol="X" isActive={activePlayer === 'X'} />
         <Player initialName="player2" symbol="O" isActive={activePlayer === 'O'} />
       </ol>
+      {winner && <p>You won, {winner}</p>}
       <GameBoard
         onSelectSquare={handleSelectSquare}
-        turns={gameTurns}
+        board={gameBoard}
       />
     </div>
 
