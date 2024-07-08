@@ -6,7 +6,12 @@ import Log from "./components/Log";
 import GameOver from "./components/GameOver";
 import { WINNING_COMBINATIONS } from "./winning-combinations";
 
-const initialGameBoard = [
+const PLAYERS = {
+  X : 'Player 1',
+  Y : 'Player 2'
+};
+
+const INITAL_GAME_BOARD = [
   [null, null, null],
   [null, null, null],
   [null, null, null]
@@ -22,20 +27,8 @@ function deriveActivePlayer(gameTurns) {
   return currentPlayer;
 }
 
-function App() {
-  const [players, setPlayers] = useState({
-    'X': 'Player 1',
-    'O': 'Player 2'
-  });
-
-  const [gameTurns, setGameTurns] = useState([]);         // 버튼 하나를 클릭할 때마다 이 배열에 순서를 하니씩 추가한다. 
-  // const [hasWinner, setHasWinner] = useState(false); 불필요
-  //상태를 하나 더 만들어서 크게 다를 것 없는 정보를 저장하는 것은 리액트 개발자로서 피하는 것이 좋다.
-  // const [activePlayer, setActivePlayer] = useState('X');
-
-  const activePlayer = deriveActivePlayer(gameTurns);
-
-  let gameBoard = [...initialGameBoard.map(array => [...array])];
+function deriveGameBoard(gameTurns){
+  let gameBoard = [...INITAL_GAME_BOARD.map(array => [...array])];
 
   for (const turn of gameTurns) {
     const { square, player } = turn;
@@ -43,7 +36,10 @@ function App() {
 
     gameBoard[row][col] = player;
   }
+  return gameBoard;
+}
 
+function deriveWinnder(gameBoard, players) {
   let winner = null;
 
   for (const combination of WINNING_COMBINATIONS) {
@@ -56,6 +52,20 @@ function App() {
     }
   }
 
+  return winner;
+}
+
+function App() {
+  const [players, setPlayers] = useState(PLAYERS);
+
+  const [gameTurns, setGameTurns] = useState([]);         // 버튼 하나를 클릭할 때마다 이 배열에 순서를 하니씩 추가한다. 
+  // const [hasWinner, setHasWinner] = useState(false); 불필요
+  //상태를 하나 더 만들어서 크게 다를 것 없는 정보를 저장하는 것은 리액트 개발자로서 피하는 것이 좋다.
+  // const [activePlayer, setActivePlayer] = useState('X');
+
+  const activePlayer = deriveActivePlayer(gameTurns);
+  const gameBoard = deriveGameBoard(gameTurns);
+  const winner = deriveWinnder(gameBoard, players);
   const hasDraw = gameTurns.length === 9 && !winner
 
   function handleSelectSquare(rowIndex, colIndex) {                         // GameBoard 에서 handleSelectSqure 를 제어한다.
@@ -90,8 +100,8 @@ function App() {
       <div id="game-container">
         {/*PLAYERS*/}
         <ol id="players" className="highlight-player">
-          <Player initialName="player1" symbol="X" isActive={activePlayer === 'X'} onChangeName ={handlePlayerNameChange} />
-          <Player initialName="player2" symbol="O" isActive={activePlayer === 'O'} onChangeName ={handlePlayerNameChange} />
+          <Player initialName={PLAYERS.X} symbol="X" isActive={activePlayer === 'X'} onChangeName={handlePlayerNameChange} />
+          <Player initialName={PLAYERS.Y} symbol="O" isActive={activePlayer === 'O'} onChangeName={handlePlayerNameChange} />
         </ol>
         {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}
         <GameBoard
